@@ -1,0 +1,15 @@
+{
+  "name": "ai-agent-architectures",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Comparison of AI agent frameworks: OpenClaw, Hermes, HermitClaw, IronClaw, PicoClaw, SpaceBot, Pi Dev",
+  "scripts": {
+    "dev": "npm run --prefix site dev",
+    "build": "npm run --prefix site build",
+    "start": "npm run --prefix site start",
+    "install:site": "cd site && npm install"
+  },
+  "keywords": ["ai", "agents", "comparison"],
+  "author": "Zakk Fleischmann",
+  "license": "MIT"
+}
