@@ -57,6 +57,10 @@ The site runs at [http://localhost:3000](http://localhost:3000).
 2. Add the framework metadata to `site/src/lib/frameworks.ts`
 3. The site will automatically pick up the new analysis at `/framework/<slug>`
 
+## Contributing
+
+Want to see a framework or agent harness added? [Open an issue](https://github.com/0xZakk/ai-agent-architectures/issues/new) with a link to the project and a brief description of why it's interesting. See [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
+
 ## License
 
 MIT
