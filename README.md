@@ -6,13 +6,13 @@ A deep technical comparison of 7 open-source AI agent frameworks, built for soft
 
 | Framework | Language | Focus |
 |-----------|----------|-------|
-| **OpenClaw** | TypeScript | Multi-channel personal AI gateway |
-| **IronClaw** | Rust | Security-first agent framework |
-| **PicoClaw** | Go | Ultra-lightweight embedded agent |
-| **HermitClaw** | Python | Autonomous research tamagotchi |
-| **Spacebot** | Rust | Multi-agent delegation framework |
-| **pi (pi.dev)** | TypeScript | Minimalist coding agent CLI |
-| **Hermes Agent** | Python | Personal autonomous agent with persistent memory |
+| [**OpenClaw**](analyses/openclaw.md) | TypeScript | Multi-channel personal AI gateway |
+| [**IronClaw**](analyses/ironclaw.md) | Rust | Security-first agent framework |
+| [**PicoClaw**](analyses/picoclaw.md) | Go | Ultra-lightweight embedded agent |
+| [**HermitClaw**](analyses/hermitclaw.md) | Python | Autonomous research tamagotchi |
+| [**Spacebot**](analyses/spacebot.md) | Rust | Multi-agent delegation framework |
+| [**pi (pi.dev)**](analyses/pi-dev.md) | TypeScript | Minimalist coding agent CLI |
+| [**Hermes Agent**](analyses/hermes-agent.md) | Python | Personal autonomous agent with persistent memory |
 
 Each analysis covers architecture, memory systems, tool calling, LLM integration, security, multi-channel support, state management, and more — with annotated code snippets and Mermaid diagrams throughout.
 
