@@ -38,6 +38,7 @@
   --color-spacebot: #2B9AAA;
   --color-pidev: #D4782F;
   --color-hermes: #A04000;
+  --color-openai-agents: #10A37F;
 
   /* Semantic terminal */
   --color-success: #4A9A34;
@@ -77,6 +78,7 @@
   --color-spacebot: #4fc4c4;
   --color-pidev: #EB984E;
   --color-hermes: #CA6F1E;
+  --color-openai-agents: #4DD8A5;
 
   --color-success: #6B9F4D;
   --color-info: #5DADE2;
@@ -116,6 +118,34 @@ pre code {
   justify-content: center;
   margin: 1.5rem 0;
   overflow-x: auto;
+}
+
+.diagram-wrapper {
+  position: relative;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  background: var(--color-bg-secondary);
+}
+
+.diagram-wrapper .mermaid {
+  margin: 0;
+}
+
+.mermaid-fullscreen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.mermaid-fullscreen svg {
+  max-height: 88vh;
+  max-width: 92vw;
+  width: auto;
+  height: auto;
 }
 
 /* ── Markdown / Prose ───────────────────────────────── */
