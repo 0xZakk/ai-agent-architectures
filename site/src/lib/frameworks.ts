@@ -80,6 +80,16 @@ export const frameworks: Framework[] = [
     colorClass: 'text-[var(--color-hermes)]',
     icon: '🪶',
   },
+  {
+    id: 'openai-agents-sdk',
+    name: 'OpenAI Agents SDK',
+    tagline: 'Multi-agent workflow framework',
+    language: 'Python / TypeScript',
+    color: 'var(--color-openai-agents)',
+    colorVar: 'openai-agents',
+    colorClass: 'text-[var(--color-openai-agents)]',
+    icon: '🤖',
+  },
 ];
 
 export function getFramework(id: string): Framework | undefined {
