@@ -1,31 +1,108 @@
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
+/* ── Theme tokens (light mode default) ──────────────── */
 @theme {
-  --color-bg: #0f1117;
-  --color-bg-secondary: #161822;
-  --color-bg-tertiary: #1e2030;
-  --color-border: #2e3144;
-  --color-text: #c8cad8;
-  --color-text-muted: #8b8fa3;
-  --color-text-bright: #e8eaf0;
-  --color-accent: #7c8af6;
-  --color-accent-dim: #5c6ac4;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-serif: 'Crimson Pro', Georgia, serif;
+  --font-mono: 'JetBrains Mono', monospace;
 
-  --color-openclaw: #7c8af6;
-  --color-ironclaw: #f6845c;
-  --color-picoclaw: #4ccf8e;
-  --color-hermitclaw: #c084fc;
-  --color-spacebot: #38bdf8;
-  --color-pidev: #fb923c;
+  /* Light mode colors */
+  --color-bg: #FFFFFF;
+  --color-bg-secondary: #F5F2ED;
+  --color-bg-tertiary: #E8E4DD;
+  --color-border: #B8B8B8;
+  --color-text: #4A4A4A;
+  --color-text-muted: #7A7A7A;
+  --color-text-bright: #2C2C2C;
+
+  /* Brand primaries */
+  --color-accent: #2D5016;
+  --color-accent-dim: #1A3009;
+  --color-accent-light: #4A7C2C;
+  --color-accent-lighter: #6B9F4D;
+
+  /* Secondary: Ocean */
+  --color-ocean: #1B4F72;
+  --color-ocean-light: #2874A6;
+
+  /* Tertiary: Terra */
+  --color-terra: #A04000;
+  --color-terra-light: #CA6F1E;
+
+  /* Terminal accent colors (framework-specific) */
+  --color-openclaw: #1B4F72;
+  --color-ironclaw: #C85A3C;
+  --color-picoclaw: #4A9A34;
+  --color-hermitclaw: #8B5A7D;
+  --color-spacebot: #2B9AAA;
+  --color-pidev: #D4782F;
+  --color-hermes: #A04000;
+
+  /* Semantic terminal */
+  --color-success: #4A9A34;
+  --color-info: #2E7CB8;
+  --color-warning: #D4782F;
+  --color-error: #C85A3C;
+
+  /* Selection */
+  --color-selection: rgba(45, 80, 22, 0.2);
 }
 
+/* ── Dark mode ──────────────────────────────────────── */
+.dark {
+  --color-bg: #1c1c1a;
+  --color-bg-secondary: #252522;
+  --color-bg-tertiary: #2e2e2a;
+  --color-border: #3e3e38;
+  --color-text: #E8E4DD;
+  --color-text-muted: #9a9890;
+  --color-text-bright: #F5F2ED;
+
+  --color-accent: #6B9F4D;
+  --color-accent-dim: #4A7C2C;
+  --color-accent-light: #A8CC8C;
+  --color-accent-lighter: #A8CC8C;
+
+  --color-ocean: #5DADE2;
+  --color-ocean-light: #AED6F1;
+
+  --color-terra: #EB984E;
+  --color-terra-light: #F5CBA7;
+
+  --color-openclaw: #5DADE2;
+  --color-ironclaw: #EB984E;
+  --color-picoclaw: #6B9F4D;
+  --color-hermitclaw: #b88aaa;
+  --color-spacebot: #4fc4c4;
+  --color-pidev: #EB984E;
+  --color-hermes: #CA6F1E;
+
+  --color-success: #6B9F4D;
+  --color-info: #5DADE2;
+  --color-warning: #EB984E;
+  --color-error: #e07a60;
+
+  --color-selection: rgba(107, 159, 77, 0.25);
+}
+
+/* ── Base ───────────────────────────────────────────── */
 body {
   background: var(--color-bg);
   color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-serif);
 }
 
 ::selection {
-  background: rgba(124, 138, 246, 0.3);
+  background: var(--color-selection);
+}
+
+pre code, code {
+  font-family: var(--font-mono);
 }
 
 pre code {
@@ -33,7 +110,7 @@ pre code {
   line-height: 1.6;
 }
 
-/* Mermaid */
+/* ── Mermaid ────────────────────────────────────────── */
 .mermaid {
   display: flex;
   justify-content: center;
@@ -41,10 +118,10 @@ pre code {
   overflow-x: auto;
 }
 
-/* Markdown content */
-.prose-custom h1 { font-size: 1.875rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 1rem; color: var(--color-text-bright); }
-.prose-custom h2 { font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; color: var(--color-text-bright); border-bottom: 1px solid var(--color-border); padding-bottom: 0.5rem; }
-.prose-custom h3 { font-size: 1.25rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--color-text-bright); }
+/* ── Markdown / Prose ───────────────────────────────── */
+.prose-custom h1 { font-family: var(--font-serif); font-size: 1.875rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 1rem; color: var(--color-text-bright); }
+.prose-custom h2 { font-family: var(--font-serif); font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; color: var(--color-text-bright); border-bottom: 1px solid var(--color-border); padding-bottom: 0.5rem; }
+.prose-custom h3 { font-family: var(--font-serif); font-size: 1.25rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--color-text-bright); }
 .prose-custom h4 { font-size: 1.1rem; font-weight: 600; margin-top: 1.25rem; margin-bottom: 0.5rem; color: var(--color-text-bright); }
 .prose-custom p { margin: 0.75rem 0; line-height: 1.75; }
 .prose-custom ul, .prose-custom ol { margin: 0.75rem 0; padding-left: 1.5rem; }
@@ -52,24 +129,34 @@ pre code {
 .prose-custom ul { list-style-type: disc; }
 .prose-custom ol { list-style-type: decimal; }
 .prose-custom a { color: var(--color-accent); text-decoration: underline; text-underline-offset: 2px; }
-.prose-custom a:hover { color: var(--color-text-bright); }
+.prose-custom a:hover { color: var(--color-accent-light); }
 .prose-custom blockquote { border-left: 3px solid var(--color-accent-dim); padding-left: 1rem; margin: 1rem 0; color: var(--color-text-muted); font-style: italic; }
 .prose-custom code:not(pre code) { background: var(--color-bg-tertiary); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.875em; color: var(--color-accent); }
 .prose-custom pre { background: var(--color-bg-secondary) !important; border: 1px solid var(--color-border); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; }
 .prose-custom table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
 .prose-custom th { background: var(--color-bg-tertiary); padding: 0.6rem 0.8rem; text-align: left; font-weight: 600; color: var(--color-text-bright); border: 1px solid var(--color-border); }
 .prose-custom td { padding: 0.5rem 0.8rem; border: 1px solid var(--color-border); }
-.prose-custom tr:nth-child(even) td { background: rgba(30, 32, 48, 0.5); }
+.prose-custom tr:nth-child(even) td { background: var(--color-bg-tertiary); opacity: 0.6; }
 .prose-custom img { max-width: 100%; border-radius: 8px; margin: 1rem 0; }
 .prose-custom hr { border-color: var(--color-border); margin: 2rem 0; }
 .prose-custom strong { color: var(--color-text-bright); }
 
-/* Scrollbar */
+/* ── Scrollbar ──────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
 
-/* TL;DR boxes */
+/* ── TL;DR boxes ────────────────────────────────────── */
 .tldr { background: var(--color-bg-tertiary); border: 1px solid var(--color-accent-dim); border-radius: 8px; padding: 1rem 1.25rem; margin: 1rem 0; }
-.tldr::before { content: 'TL;DR'; display: block; font-weight: 700; color: var(--color-accent); margin-bottom: 0.5rem; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.tldr::before { content: 'TL;DR'; display: block; font-weight: 700; color: var(--color-accent); margin-bottom: 0.5rem; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-sans); }
+
+/* ── Woodgrain background texture ───────────────────── */
+.woodgrain-bg {
+  background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 40 Q50 35 100 42 T200 38' fill='none' stroke='%234A4A4A' stroke-width='0.5' opacity='0.03'/%3E%3Cpath d='M0 80 Q60 75 120 83 T200 78' fill='none' stroke='%234A4A4A' stroke-width='0.5' opacity='0.03'/%3E%3Cpath d='M0 120 Q40 118 100 124 T200 119' fill='none' stroke='%234A4A4A' stroke-width='0.5' opacity='0.03'/%3E%3Cpath d='M0 160 Q70 155 130 163 T200 158' fill='none' stroke='%234A4A4A' stroke-width='0.5' opacity='0.03'/%3E%3C/svg%3E");
+}
+
+/* ── Theme transition ───────────────────────────────── */
+*, *::before, *::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}

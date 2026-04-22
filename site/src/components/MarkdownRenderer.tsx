@@ -9,7 +9,14 @@ import type { Components } from 'react-markdown';
 function MermaidBlock({ code }: { code: string }) {
   useEffect(() => {
     import('mermaid').then((m) => {
-      m.default.initialize({ startOnLoad: false, theme: 'dark', themeVariables: { primaryColor: '#7c8af6', primaryTextColor: '#c8cad8', lineColor: '#5c6ac4', secondaryColor: '#1e2030', tertiaryColor: '#161822' } });
+      const isDark = document.documentElement.classList.contains('dark');
+      m.default.initialize({
+        startOnLoad: false,
+        theme: isDark ? 'dark' : 'default',
+        themeVariables: isDark
+          ? { primaryColor: '#4A7C2C', primaryTextColor: '#E8E4DD', lineColor: '#6B9F4D', secondaryColor: '#2e2e2a', tertiaryColor: '#252522' }
+          : { primaryColor: '#2D5016', primaryTextColor: '#2C2C2C', lineColor: '#4A7C2C', secondaryColor: '#F5F2ED', tertiaryColor: '#E8E4DD' },
+      });
       m.default.run({ querySelector: '.mermaid' });
     });
   }, [code]);

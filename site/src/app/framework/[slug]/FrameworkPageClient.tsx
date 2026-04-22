@@ -17,11 +17,11 @@ export default function FrameworkPageClient({ framework, content, headings }: Pr
         <div className="flex items-center gap-3 mb-6">
           <span className="text-3xl">{framework.icon}</span>
           <div>
-            <h1 className="text-2xl font-bold text-[var(--color-text-bright)]">{framework.name}</h1>
+            <h1 className="text-2xl font-bold font-serif text-[var(--color-text-bright)]">{framework.name}</h1>
             <div className="flex items-center gap-2 mt-1">
               <span
                 className="text-xs px-2 py-0.5 rounded-full border"
-                style={{ color: framework.color, borderColor: framework.color + '40' }}
+                style={{ color: `var(--color-${framework.colorVar})`, borderColor: `var(--color-${framework.colorVar})`, borderWidth: '1px', opacity: 0.8 }}
               >
                 {framework.language}
               </span>

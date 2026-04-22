@@ -4,6 +4,7 @@ export interface Framework {
   tagline: string;
   language: string;
   color: string;
+  colorVar: string;
   colorClass: string;
   icon: string;
 }
@@ -14,8 +15,9 @@ export const frameworks: Framework[] = [
     name: 'OpenClaw',
     tagline: 'Multi-channel personal AI gateway',
     language: 'TypeScript',
-    color: '#7c8af6',
-    colorClass: 'text-[#7c8af6]',
+    color: 'var(--color-openclaw)',
+    colorVar: 'openclaw',
+    colorClass: 'text-[var(--color-openclaw)]',
     icon: '🦀',
   },
   {
@@ -23,8 +25,9 @@ export const frameworks: Framework[] = [
     name: 'IronClaw',
     tagline: 'Security-first Rust agent framework',
     language: 'Rust',
-    color: '#f6845c',
-    colorClass: 'text-[#f6845c]',
+    color: 'var(--color-ironclaw)',
+    colorVar: 'ironclaw',
+    colorClass: 'text-[var(--color-ironclaw)]',
     icon: '🛡️',
   },
   {
@@ -32,8 +35,9 @@ export const frameworks: Framework[] = [
     name: 'PicoClaw',
     tagline: 'Ultra-lightweight embedded agent',
     language: 'Go',
-    color: '#4ccf8e',
-    colorClass: 'text-[#4ccf8e]',
+    color: 'var(--color-picoclaw)',
+    colorVar: 'picoclaw',
+    colorClass: 'text-[var(--color-picoclaw)]',
     icon: '🔬',
   },
   {
@@ -41,8 +45,9 @@ export const frameworks: Framework[] = [
     name: 'HermitClaw',
     tagline: 'Autonomous research tamagotchi',
     language: 'Python',
-    color: '#c084fc',
-    colorClass: 'text-[#c084fc]',
+    color: 'var(--color-hermitclaw)',
+    colorVar: 'hermitclaw',
+    colorClass: 'text-[var(--color-hermitclaw)]',
     icon: '🐚',
   },
   {
@@ -50,8 +55,9 @@ export const frameworks: Framework[] = [
     name: 'Spacebot',
     tagline: 'Multi-agent delegation framework',
     language: 'Rust',
-    color: '#38bdf8',
-    colorClass: 'text-[#38bdf8]',
+    color: 'var(--color-spacebot)',
+    colorVar: 'spacebot',
+    colorClass: 'text-[var(--color-spacebot)]',
     icon: '🚀',
   },
   {
@@ -59,8 +65,9 @@ export const frameworks: Framework[] = [
     name: 'pi (pi.dev)',
     tagline: 'Minimalist coding agent CLI',
     language: 'TypeScript',
-    color: '#fb923c',
-    colorClass: 'text-[#fb923c]',
+    color: 'var(--color-pidev)',
+    colorVar: 'pidev',
+    colorClass: 'text-[var(--color-pidev)]',
     icon: '⚡',
   },
   {
@@ -68,8 +75,9 @@ export const frameworks: Framework[] = [
     name: 'Hermes Agent',
     tagline: 'Personal autonomous agent with persistent memory',
     language: 'Python',
-    color: '#e879f9',
-    colorClass: 'text-[#e879f9]',
+    color: 'var(--color-hermes)',
+    colorVar: 'hermes',
+    colorClass: 'text-[var(--color-hermes)]',
     icon: '🪶',
   },
 ];

@@ -7,7 +7,7 @@ export default function PatternsClient({ content, headings }: { content: string;
   return (
     <div className="flex gap-8">
       <div className="flex-1 min-w-0 max-w-4xl mx-auto px-6 py-8">
-        <h1 className="text-3xl font-bold text-[var(--color-text-bright)] mb-2">Architecture Patterns</h1>
+        <h1 className="text-3xl font-bold font-serif text-[var(--color-text-bright)] mb-2">Architecture Patterns</h1>
         <p className="text-[var(--color-text-muted)] mb-6">Cross-cutting patterns observed across all 7 frameworks.</p>
         <div className="tldr">
           <p className="text-sm text-[var(--color-text)]">

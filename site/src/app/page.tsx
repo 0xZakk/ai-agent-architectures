@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <div className="max-w-4xl mx-auto px-6 py-12">
       <div className="mb-12">
-        <h1 className="text-4xl font-bold text-[var(--color-text-bright)] mb-4">
+        <h1 className="text-4xl font-bold font-serif text-[var(--color-text-bright)] mb-4">
           AI Agent Architectures
         </h1>
         <p className="text-lg text-[var(--color-text-muted)] mb-6 leading-relaxed">
@@ -56,7 +56,7 @@ export default function Home() {
                 <h3 className="font-semibold text-[var(--color-text-bright)] group-hover:text-[var(--color-accent)] transition-colors">
                   {fw.name}
                 </h3>
-                <span className="text-xs px-2 py-0.5 rounded-full border border-[var(--color-border)]" style={{ color: fw.color }}>
+                <span className="text-xs px-2 py-0.5 rounded-full border border-[var(--color-border)]" style={{ color: `var(--color-${fw.colorVar})` }}>
                   {fw.language}
                 </span>
               </div>
