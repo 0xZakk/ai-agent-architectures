@@ -16,12 +16,16 @@ Each framework takes a fundamentally different approach to its main execution lo
 | **HermitClaw** | Continuous autonomous loop (5s tick) | Python | Single asyncio task per crab |
 | **Spacebot** | Concurrent process model (Channel/Branch/Worker) | Rust | \`tokio::spawn\` per process, broadcast events |
 | **pi (pi.dev)** | Classic agentic loop with steering queues | TypeScript | Single-threaded with interrupt queues |
+| **Hermes Agent** | Synchronous agentic loop with thread interrupts | Python | Synchronous core, subagent parallelism (up to 3) |
+| **OpenAI Agents SDK** | Runner turn loop with guardrails and handoffs | Python / TypeScript | async/await, asyncio.gather for parallel guardrails |
 
-**Request-response** (OpenClaw, IronClaw, PicoClaw, pi): The agent waits for input, processes it through an LLM + tool loop, returns a response. This is the dominant pattern.
+**Request-response** (OpenClaw, IronClaw, PicoClaw, pi, Hermes): The agent waits for input, processes it through an LLM + tool loop, returns a response. This is the dominant pattern.
 
 **Continuous** (HermitClaw): The agent thinks on its own, continuously, with no human trigger. Every 5 seconds it runs a think cycle, picks topics, researches, writes. Human messages are "overheard" as nudges.
 
 **Delegation** (Spacebot): The user-facing Channel never executes work -- it dispatches to Branches (thinking) and Workers (execution) that run as concurrent tasks. Results flow back as events.
+
+**Orchestration** (OpenAI Agents SDK): The Runner manages a turn loop where agents can hand off to other agents, tools can require human approval (pausing the entire run), and guardrails validate inputs/outputs. The run state is fully serializable for durable workflows.
 
 ### Module Structure Comparison
 
@@ -33,6 +37,12 @@ Each framework takes a fundamentally different approach to its main execution lo
 | **HermitClaw** | ~14 Py | ~3K | Single Brain class, memory stream |
 | **Spacebot** | ~88 RS | ~25K+ | Process types (Channel/Branch/Worker), memory graph |
 | **pi (pi.dev)** | ~50 TS | ~15K+ | Operations interfaces, extension events |
+| **Hermes Agent** | ~100+ Py | ~20K+ | AIAgent class, ToolRegistry singleton, BasePlatformAdapter |
+| **OpenAI Agents SDK** | ~230+ Py / ~100+ TS | ~30K+ (Py) | Agent, Runner, Handoff, Guardrail, RunState |
+
+### Framework Type Spectrum
+
+A key distinction: most frameworks here are **standalone agent applications** -- you run them and interact with them. The OpenAI Agents SDK is a **library** -- you import it into your own application and build agents programmatically. Hermes Agent sits in between: it's an application, but its tool registry and platform adapter patterns make it highly extensible.
 
 ## Memory Systems
 
@@ -46,6 +56,8 @@ Each framework takes a fundamentally different approach to its main execution lo
 | **HermitClaw** | Last N thoughts in context | Append-only JSONL memory stream | 3-factor retrieval: recency + importance + cosine similarity | **None** -- memory grows unbounded |
 | **Spacebot** | Channel conversation history | Typed memory graph (8 types) in SQLite + LanceDB | Hybrid FTS + vector + graph via RRF | Tiered: 80% background, 85% aggressive, 95% emergency |
 | **pi (pi.dev)** | JSONL session with tree structure | AGENTS.md files (no cross-session memory) | **None** | LLM-based compaction with file tracking |
+| **Hermes Agent** | Session JSON transcripts | MEMORY.md + USER.md (§-delimited entries) | Honcho AI cross-session memory; SQLite session search | ContextCompressor (middle turns summarized by auxiliary model) |
+| **OpenAI Agents SDK** | Session interface (pluggable backends) | **None** built-in (use tools + external stores) | **None** built-in (file_search hosted tool available) | Server-side compaction via responses.compact API |
 
 ### Memory Retrieval Approaches
 
@@ -53,42 +65,50 @@ Each framework takes a fundamentally different approach to its main execution lo
 
 **Three-Factor Retrieval** -- HermitClaw's approach from the Generative Agents paper: \`score = recency + importance + relevance\`. Each factor ranges 0-1, recency decays exponentially, importance is LLM-scored 1-10, relevance is cosine similarity.
 
+**External Memory Services** -- Hermes Agent uses Honcho for AI-native cross-session user modeling, plus SQLite-indexed session search for conversation history.
+
+**Pluggable Session Backends** -- The OpenAI Agents SDK defines a Session protocol/interface with 10+ backends (in-memory, SQLite, Redis, SQLAlchemy, MongoDB, Dapr, encrypted, OpenAI Conversations). Long-term memory is left to the application.
+
 **No Retrieval** -- PicoClaw and pi have no semantic search. PicoClaw injects MEMORY.md + last 3 days into the system prompt. pi relies on AGENTS.md context files and the LLM reading files via tools.
 
 ### The Workspace File Pattern
 
-Five of six frameworks use a shared pattern for persistent identity and memory:
+Five of eight frameworks use a shared pattern for persistent identity and memory:
 
 | File | Purpose | Used By |
 |------|---------|---------|
-| \`AGENTS.md\` | Operational instructions | OpenClaw, IronClaw, PicoClaw, Spacebot, pi |
-| \`SOUL.md\` | Personality/values | OpenClaw, IronClaw, PicoClaw, Spacebot |
-| \`USER.md\` | Info about the human | OpenClaw, IronClaw, PicoClaw, Spacebot |
-| \`MEMORY.md\` | Curated long-term memory | OpenClaw, IronClaw, PicoClaw |
+| \`AGENTS.md\` | Operational instructions | OpenClaw, IronClaw, PicoClaw, Spacebot, pi, Hermes |
+| \`SOUL.md\` | Personality/values | OpenClaw, IronClaw, PicoClaw, Spacebot, Hermes |
+| \`USER.md\` | Info about the human | OpenClaw, IronClaw, PicoClaw, Spacebot, Hermes |
+| \`MEMORY.md\` | Curated long-term memory | OpenClaw, IronClaw, PicoClaw, Hermes |
 | \`memory/YYYY-MM-DD.md\` | Daily logs | OpenClaw, IronClaw, PicoClaw |
 
 HermitClaw is the outlier -- it uses \`identity.json\` (genome-derived traits) and \`memory_stream.jsonl\` (append-only with embeddings) instead.
+
+The OpenAI Agents SDK has no workspace file convention -- agent instructions are defined in code, and memory is delegated to the Session interface.
 
 ## Tool / Function Calling
 
 ### Tool Inventory
 
-| Tool Category | OpenClaw | IronClaw | PicoClaw | HermitClaw | Spacebot | pi |
-|--------------|----------|----------|----------|------------|----------|----|
-| Shell exec | ✅ | ✅ | ✅ | ✅ (sandboxed) | ✅ (worker) | ✅ |
-| File R/W | ✅ | ✅ | ✅ | Via shell | ✅ (worker) | ✅ |
-| File edit | ✅ | Via write | ✅ | Via shell | Via file tool | ✅ |
-| Web search | ✅ | ✅ | ✅ | ✅ (OpenAI built-in) | ✅ (worker) | Via extension |
-| Web fetch | ✅ | ✅ | ✅ | ✅ | Via shell | Via extension |
-| Browser automation | ✅ (Playwright) | ❌ | ❌ | ❌ | ✅ (headless Chrome) | Via extension |
-| Memory search | ✅ | ✅ | ❌ | Automatic (retrieval) | ✅ (branch) | ❌ |
-| Message/channel | ✅ | Via channels | ✅ | ✅ (respond) | ✅ (reply) | Via extension |
-| Sub-agents | ✅ | ❌ | ✅ | ❌ | ✅ (branch/worker) | Via extension |
-| Cron/scheduling | ✅ | ✅ (routines) | ✅ | ❌ | ✅ | Via extension |
-| TTS | ✅ | ❌ | ❌ | ❌ | ❌ | Via extension |
-| Image analysis | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ (read) |
-| Hardware I/O | ❌ | ❌ | ✅ (I2C/SPI) | ❌ | ❌ | ❌ |
-| Movement/position | ❌ | ❌ | ❌ | ✅ (room) | ❌ | ❌ |
+| Tool Category | OpenClaw | IronClaw | PicoClaw | HermitClaw | Spacebot | pi | Hermes | Agents SDK |
+|--------------|----------|----------|----------|------------|----------|----|--------|------------|
+| Shell exec | ✅ | ✅ | ✅ | ✅ (sandboxed) | ✅ (worker) | ✅ | ✅ (5 backends) | ✅ (ShellTool) |
+| File R/W | ✅ | ✅ | ✅ | Via shell | ✅ (worker) | ✅ | ✅ | Via tools |
+| File edit | ✅ | Via write | ✅ | Via shell | Via file tool | ✅ | ✅ (patch) | ✅ (ApplyPatchTool) |
+| Web search | ✅ | ✅ | ✅ | ✅ (OpenAI built-in) | ✅ (worker) | Via extension | ✅ (Brave/Tavily) | ✅ (WebSearchTool) |
+| Web fetch | ✅ | ✅ | ✅ | ✅ | Via shell | Via extension | ✅ | Via tools |
+| Browser automation | ✅ (Playwright) | ❌ | ❌ | ❌ | ✅ (headless Chrome) | Via extension | ✅ (Playwright) | ✅ (ComputerTool) |
+| Memory search | ✅ | ✅ | ❌ | Automatic (retrieval) | ✅ (branch) | ❌ | ✅ (Honcho + SQLite) | ✅ (FileSearchTool) |
+| Message/channel | ✅ | Via channels | ✅ | ✅ (respond) | ✅ (reply) | Via extension | ✅ (send_message) | Via tools |
+| Sub-agents | ✅ | ❌ | ✅ | ❌ | ✅ (branch/worker) | Via extension | ✅ (delegate_task) | ✅ (agent-as-tool) |
+| Cron/scheduling | ✅ | ✅ (routines) | ✅ | ❌ | ✅ | Via extension | ✅ (natural language) | ❌ |
+| TTS | ✅ | ❌ | ❌ | ❌ | ❌ | Via extension | ✅ (OpenAI/ElevenLabs) | ✅ (voice pipeline) |
+| Image analysis | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ (read) | ✅ (vision models) | Via tools |
+| Image generation | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ (fal.ai) | ✅ (ImageGenerationTool) |
+| Hardware I/O | ❌ | ❌ | ✅ (I2C/SPI) | ❌ | ❌ | ❌ | ✅ (Home Assistant) | ❌ |
+| Code execution | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ (Python RPC) | ✅ (CodeInterpreterTool) |
+| MCP support | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ (local + hosted) |
 
 ### Sandboxing Spectrum
 
@@ -96,84 +116,90 @@ HermitClaw is the outlier -- it uses \`identity.json\` (genome-derived traits) a
 |-----------|----------------|------------|-------|
 | **IronClaw** | **Strongest** | WASM sandbox (Wasmtime) + capability model | Fuel metering, no filesystem, credential injection at boundary |
 | **OpenClaw** | **Strong** | Optional Docker sandbox | Multi-layer tool policy pipeline, exec security modes |
+| **Hermes Agent** | **Strong** | Docker (cap-drop ALL, no-new-privileges, PID limits) + SSH + Modal | 5 terminal backends with varying isolation levels |
 | **Spacebot** | **Moderate** | Process type separation | Channel can't exec, Worker can't access memory, path restrictions |
+| **OpenAI Agents SDK** | **Moderate** | Container-based ShellTool + sandbox providers | Docker, E2B, Modal, Vercel, Cloudflare, Daytona sandbox clients |
 | **HermitClaw** | **Best-effort** | Command blocklist + Python monkey-patching | Explicitly "not a security boundary" |
 | **PicoClaw** | **Basic** | Regex deny patterns (40+ rules) | Workspace restriction, no process isolation |
 | **pi** | **None** | No sandboxing | "YOLO by default" -- full filesystem and shell access |
 
 ### Tool Definition Patterns
 
-All six frameworks define tools as name + JSON schema + execute function, matching the LLM tool-calling convention. But the registration patterns differ:
+All eight frameworks define tools as name + JSON schema + execute function, matching the LLM tool-calling convention. But the registration patterns differ:
 
-- **Registry pattern** (OpenClaw, IronClaw, PicoClaw, Spacebot): Tools register in a central registry, filtered by policy before reaching the LLM
+- **Registry pattern** (OpenClaw, IronClaw, PicoClaw, Spacebot, Hermes): Tools register in a central registry, filtered by policy before reaching the LLM
 - **Direct assembly** (HermitClaw): Tools defined inline as OpenAI function schemas
 - **Operations pattern** (pi): Tools wrap pluggable I/O interfaces, enabling tool redirection (e.g., SSH)
+- **Declarative pattern** (OpenAI Agents SDK): Tools declared on agent construction via \`tools=[]\` array; the Runner resolves them per turn. Supports \`@function_tool\` decorator (Python) or \`tool()\` builder (JS) for automatic schema generation from type annotations.
 
 ## Security
 
 ### Security Model Comparison
 
-| Feature | OpenClaw | IronClaw | PicoClaw | HermitClaw | Spacebot | pi |
-|---------|----------|----------|----------|------------|----------|----|
-| Process sandbox | Docker (optional) | WASM (Wasmtime) | None | Subprocess | Process separation | None |
-| Credential encryption | N/A | AES at rest, inject at boundary | Plaintext JSON | Env vars only | Encrypted SQLite | Env vars/config |
-| Prompt injection defense | External content wrapping | Aho-Corasick + regex detection | None | None | None | None |
-| Leak detection | N/A | Pattern scanning (pre/post request) | None | None | None | None |
-| Endpoint allowlisting | N/A | Host + path + method allowlist | None | Command blocklist | Path restrictions | None |
-| Tool policy layers | 5-layer pipeline | Capability-based + approval | AllowFrom per channel | Command blocklist | Process type isolation | None (extension-based) |
-| Exec security modes | deny/allowlist/full | Approval per tool call | Regex deny patterns | Blocklist + env restriction | Workspace restriction | Full access |
-| Security audit | Built-in audit system | Comprehensive test suite | N/A | N/A | N/A | N/A |
+| Feature | OpenClaw | IronClaw | PicoClaw | HermitClaw | Spacebot | pi | Hermes | Agents SDK |
+|---------|----------|----------|----------|------------|----------|----|--------|------------|
+| Process sandbox | Docker (optional) | WASM (Wasmtime) | None | Subprocess | Process separation | None | Docker/SSH/Modal | Container ShellTool |
+| Credential encryption | N/A | AES at rest, inject at boundary | Plaintext JSON | Env vars only | Encrypted SQLite | Env vars/config | .env (sandboxed from agent) | Env vars |
+| Prompt injection defense | External content wrapping | Aho-Corasick + regex detection | None | None | None | None | 25+ pattern scanner | None |
+| Leak detection | N/A | Pattern scanning (pre/post request) | None | None | None | None | Memory entry scanning + log redaction | Trace data controls |
+| Endpoint allowlisting | N/A | Host + path + method allowlist | None | Command blocklist | Path restrictions | None | Per-platform user allowlists | None |
+| Tool policy layers | 5-layer pipeline | Capability-based + approval | AllowFrom per channel | Command blocklist | Process type isolation | None (extension-based) | Dangerous command approval (25+ patterns) | Guardrails (input/output/tool) + approval |
+| Exec security modes | deny/allowlist/full | Approval per tool call | Regex deny patterns | Blocklist + env restriction | Workspace restriction | Full access | Confirmation (CLI) / approval (messaging) | needsApproval per tool |
 
-IronClaw's security is the standout -- five layers deep (WASM sandbox, credential injection, prompt injection defense, leak detection, endpoint allowlisting). OpenClaw has the most configurable policy system. The rest range from basic to nonexistent.
+IronClaw's security is the standout -- five layers deep (WASM sandbox, credential injection, prompt injection defense, leak detection, endpoint allowlisting). Hermes Agent adds strong prompt injection scanning and multi-backend isolation. The OpenAI Agents SDK takes a different approach with guardrails (tripwire-based safety checks at input, output, and tool levels) plus human-in-the-loop tool approval with serializable state.
 
 ## LLM Integration
 
 ### Provider Support
 
-| Provider | OpenClaw | IronClaw | PicoClaw | HermitClaw | Spacebot | pi |
-|----------|----------|----------|----------|------------|----------|----|
-| Anthropic | ✅ | ✅ | ✅ (native) | Via OpenRouter | ✅ | ✅ |
-| OpenAI | ✅ | ✅ | ✅ | ✅ (primary) | ✅ | ✅ |
-| Google | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ |
-| Ollama | ✅ | ✅ | ✅ | ✅ (custom) | ❌ | ✅ |
-| OpenRouter | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Groq | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
-| DeepSeek | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ |
-| Bedrock | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Chinese providers | ❌ | ❌ | ✅ (Zhipu, Moonshot, etc.) | ❌ | ✅ (Zhipu) | ❌ |
-| Provider count | 7+ | 5 | 15+ | 3 | 11 | 10+ |
+| Provider | OpenClaw | IronClaw | PicoClaw | HermitClaw | Spacebot | pi | Hermes | Agents SDK |
+|----------|----------|----------|----------|------------|----------|----|--------|------------|
+| Anthropic | ✅ | ✅ | ✅ (native) | Via OpenRouter | ✅ | ✅ | Via OpenRouter | Via LiteLLM / AI SDK |
+| OpenAI | ✅ | ✅ | ✅ | ✅ (primary) | ✅ | ✅ | Via OpenRouter | ✅ (primary, Responses + Chat Completions) |
+| Google | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | Gemini Flash (aux) | Via LiteLLM / AI SDK |
+| Ollama | ✅ | ✅ | ✅ | ✅ (custom) | ❌ | ✅ | ✅ (custom endpoint) | Via LiteLLM |
+| OpenRouter | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ (primary, 200+ models) | Via LiteLLM |
+| Groq | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | Via OpenRouter | Via LiteLLM |
+| DeepSeek | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | Via OpenRouter | Via LiteLLM |
+| Bedrock | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | Via LiteLLM |
+| Chinese providers | ❌ | ❌ | ✅ (Zhipu, Moonshot, etc.) | ❌ | ✅ (Zhipu) | ❌ | Via OpenRouter | Via LiteLLM |
+| Provider count | 7+ | 5 | 15+ | 3 | 11 | 10+ | 200+ (via OpenRouter) | 100+ (via LiteLLM) |
 
 ### Resilience Features
 
-| Feature | OpenClaw | IronClaw | PicoClaw | HermitClaw | Spacebot | pi |
-|---------|----------|----------|----------|------------|----------|----|
-| Streaming | ✅ | ✅ | ❌ | ❌ | ❌ (stubbed) | ✅ |
-| Fallback chains | ✅ | ✅ (circuit breaker) | ✅ | ❌ | ✅ | ✅ |
-| Cost tracking | ✅ (per-message) | ✅ (Decimal precision) | ❌ | ❌ | ❌ | ✅ (per-message) |
-| Auth rotation | ✅ (multi-key) | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Context handoff | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ (cross-provider) |
+| Feature | OpenClaw | IronClaw | PicoClaw | HermitClaw | Spacebot | pi | Hermes | Agents SDK |
+|---------|----------|----------|----------|------------|----------|----|--------|------------|
+| Streaming | ✅ | ✅ | ❌ | ❌ | ❌ (stubbed) | ✅ | ❌ (complete before send) | ✅ (RunResultStreaming) |
+| Fallback chains | ✅ | ✅ (circuit breaker) | ✅ | ❌ | ✅ | ✅ | Graceful tool failure | ✅ (retry with backoff + jitter) |
+| Cost tracking | ✅ (per-message) | ✅ (Decimal precision) | ❌ | ❌ | ❌ | ✅ (per-message) | ✅ (per-session) | ✅ (Usage tracking) |
+| Auth rotation | ✅ (multi-key) | ❌ | ❌ | ❌ | ❌ | ❌ | OAuth token management | ❌ |
+| Context handoff | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ (cross-provider) | ❌ | ✅ (handoffs between agents) |
 
-pi's cross-provider context handoff is unique -- you can start with Claude, switch to GPT mid-session, and continue with Gemini, with automatic message format conversion.
+pi's cross-provider context handoff is unique -- you can start with Claude, switch to GPT mid-session, and continue with Gemini, with automatic message format conversion. The OpenAI Agents SDK's context handoff is between agents (via handoffs), not between providers.
 
 ## Multi-Channel Support
 
-| Platform | OpenClaw | IronClaw | PicoClaw | HermitClaw | Spacebot | pi |
-|----------|----------|----------|----------|------------|----------|----|
-| CLI/REPL | ❌ | ✅ | ❌ | ❌ | ❌ | ✅ (TUI) |
-| Telegram | ✅ | ✅ (WASM) | ✅ | ❌ | ✅ | ❌ |
-| Discord | ✅ | ✅ (WASM) | ✅ | ❌ | ✅ | ❌ |
-| Slack | ✅ | ✅ (WASM) | ✅ | ❌ | ✅ | ✅ (mom) |
-| WhatsApp | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
-| Signal | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| iMessage | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Web UI | ✅ | ✅ | ❌ | ✅ (pixel art) | ✅ | ✅ (web-ui) |
-| QQ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
-| DingTalk | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
-| Feishu/Lark | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
-| LINE | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
-| **Total** | **7** | **4-5** | **10** | **1** | **4** | **3-4** |
+| Platform | OpenClaw | IronClaw | PicoClaw | HermitClaw | Spacebot | pi | Hermes | Agents SDK |
+|----------|----------|----------|----------|------------|----------|----|--------|------------|
+| CLI/REPL | ❌ | ✅ | ❌ | ❌ | ❌ | ✅ (TUI) | ✅ (TUI) | ✅ (run_demo_loop) |
+| Telegram | ✅ | ✅ (WASM) | ✅ | ❌ | ✅ | ❌ | ✅ | ❌ |
+| Discord | ✅ | ✅ (WASM) | ✅ | ❌ | ✅ | ❌ | ✅ | ❌ |
+| Slack | ✅ | ✅ (WASM) | ✅ | ❌ | ✅ | ✅ (mom) | ✅ | ❌ |
+| WhatsApp | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ✅ (Node bridge) | ❌ |
+| Signal | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| iMessage | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Web UI | ✅ | ✅ | ❌ | ✅ (pixel art) | ✅ | ✅ (web-ui) | ❌ | ❌ |
+| Home Assistant | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| QQ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| DingTalk | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Feishu/Lark | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| LINE | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Realtime/Voice | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ (WebRTC, WebSocket, SIP) |
+| **Total** | **7** | **4-5** | **10** | **1** | **4** | **3-4** | **6** | **1-2** |
 
-PicoClaw leads with 10 channels, largely because of Chinese platform support (QQ, DingTalk, Feishu, OneBot). OpenClaw has the broadest Western platform coverage with 7 channels.
+PicoClaw leads with 10 channels, largely because of Chinese platform support (QQ, DingTalk, Feishu, OneBot). OpenClaw has the broadest Western platform coverage with 7 channels. Hermes Agent covers the core Western platforms plus Home Assistant for IoT.
+
+The OpenAI Agents SDK takes a fundamentally different approach -- it's a library, not an application, so it doesn't include platform adapters. Instead, it provides a Realtime API integration for voice agents (WebRTC, WebSocket, SIP) that you wire into your own application.
 
 ### Channel Abstraction Patterns
 
@@ -183,6 +209,7 @@ All multi-channel frameworks abstract messaging via a common interface:
 - **IronClaw**: \`Channel\` trait (\`start() -> MessageStream\`, \`respond()\`, \`health_check()\`)
 - **PicoClaw**: \`Channel\` interface (Name/Start/Stop/Send/IsAllowed)
 - **Spacebot**: \`Messaging\` trait (start/respond/broadcast/fetch_history)
+- **Hermes Agent**: \`BasePlatformAdapter\` ABC producing normalized \`MessageEvent\` dataclass
 
 ## Identity & Personality
 
@@ -194,6 +221,8 @@ All multi-channel frameworks abstract messaging via a common interface:
 | **HermitClaw** | identity.json (genome-derived) | Cryptographic trait derivation from keyboard entropy | Personality is deterministic from a 32-byte genome |
 | **Spacebot** | SOUL.md + IDENTITY.md + USER.md | Files + pre-computed memory bulletin | Per-process model routing (different models for different tasks) |
 | **pi** | ~150 word default + AGENTS.md | Minimal system prompt, extensible via extensions | Stealth mode (mimics Claude Code tool names) |
+| **Hermes Agent** | SOUL.md + AGENTS.md + USER.md + MEMORY.md | Workspace files + skills injected into system prompt | Skills system (agentskills.io compatible markdown docs with progressive disclosure) |
+| **OpenAI Agents SDK** | Code-defined instructions string/function | Dynamic instructions via RunContext | Server-managed Prompt objects for centralized prompt management |
 
 ## Resource Footprint
 
@@ -205,8 +234,10 @@ All multi-channel frameworks abstract messaging via a common interface:
 | **HermitClaw** | ~100-200MB | 2-5s | ~50MB (Python + deps) | Python, pip |
 | **Spacebot** | ~50-200MB | 1-3s | ~20-50MB binary | None (single Rust binary) |
 | **pi** | ~200-500MB | 2-5s | ~100MB (node_modules) | Node.js, npm |
+| **Hermes Agent** | ~200-500MB | 2-5s | ~100MB (Python + deps) | Python, pip, many optional services |
+| **OpenAI Agents SDK** | ~50-200MB | <1s | ~20MB (pip) / ~10MB (npm) | Python or Node.js; OpenAI API key |
 
-PicoClaw is the clear winner here -- designed explicitly for $10 SBCs with <10MB RAM and sub-second boot.
+PicoClaw is the clear winner for footprint -- designed explicitly for $10 SBCs with <10MB RAM and sub-second boot. The OpenAI Agents SDK is lightweight as a library but requires an LLM API connection.
 
 ## Best For: When to Use Which
 
@@ -218,9 +249,13 @@ PicoClaw is the clear winner here -- designed explicitly for $10 SBCs with <10MB
 | Autonomous research agent / digital pet | **HermitClaw** | Continuous thinking loop, Generative Agents memory |
 | Multi-user team agent (Discord/Slack server) | **Spacebot** | Concurrent delegation model, multi-agent support |
 | Minimalist coding assistant | **pi (pi.dev)** | 4 tools, cross-provider handoff, powerful extension system |
+| Self-improving personal agent with skills | **Hermes Agent** | Persistent memory, skills system, cron, 5 terminal backends |
+| Multi-agent workflows in your own app | **OpenAI Agents SDK** | Handoffs, guardrails, human-in-the-loop, serializable state |
 | Learning agent architecture basics | **HermitClaw** or **PicoClaw** | Smallest codebases, easiest to read |
 | Building a custom agent framework | **pi (pi.dev)** | Clean extension system, pluggable operations pattern |
-| Maximum LLM provider support | **PicoClaw** | 15+ providers including Chinese platforms |
+| Maximum LLM provider support | **Hermes Agent** | 200+ models via OpenRouter |
+| Production multi-agent with typed safety | **OpenAI Agents SDK** | Type-safe context, structured output, tracing, 10+ session backends |
+| Voice / realtime agents | **OpenAI Agents SDK** | Voice pipeline (Python), Realtime API, WebRTC/SIP (JS) |
 `;
 
 export default function ComparisonPage() {

@@ -9,15 +9,15 @@ export default function Home() {
           AI Agent Architectures
         </h1>
         <p className="text-lg text-[var(--color-text-muted)] mb-6 leading-relaxed">
-          A deep technical comparison of 7 AI agent frameworks, written for software engineers
+          A deep technical comparison of 8 AI agent frameworks, written for software engineers
           who want to understand how AI agents are built -- and how to build their own.
         </p>
         <div className="tldr">
           <p className="text-sm text-[var(--color-text)]">
-            This site analyzes the source code of 7 open-source AI agent frameworks across architecture,
+            This site analyzes the source code of 8 open-source AI agent frameworks across architecture,
             memory, tools, security, LLM integration, and more. Each framework analysis is 30+ pages of
             annotated code and architecture diagrams. The <Link href="/comparison" className="text-[var(--color-accent)]">Comparison</Link> page
-            synthesizes findings across all seven. The <Link href="/build-your-own" className="text-[var(--color-accent)]">Build Your Own</Link> guide
+            synthesizes findings across all eight. The <Link href="/build-your-own" className="text-[var(--color-accent)]">Build Your Own</Link> guide
             distills patterns into actionable advice.
           </p>
         </div>
