@@ -1,13 +1,13 @@
-# IronClaw - Agent Framework Analysis
+# IronClaw
 
 ## 1. Overview
 
 IronClaw is a secure, self-expanding personal AI assistant framework written in Rust by NEAR AI. Its defining philosophy is that an AI assistant should work *for* the user -- data stays local, the codebase is open and auditable, and multiple security layers protect against prompt injection, data exfiltration, and unauthorized access. It runs as a long-lived daemon that accepts input from multiple channels (CLI REPL, Telegram, Slack, web gateway) and executes an agentic tool-calling loop backed by LLMs (NEAR AI, OpenAI, Anthropic, Ollama, or any OpenAI-compatible endpoint). Untrusted tools run in WASM sandboxes with capability-based permissions; secrets are never exposed to tool code; and a hybrid search system (full-text + vector via Reciprocal Rank Fusion) provides persistent memory.
 
-- **Language/Runtime**: Rust 1.92+ (2024 edition), async via Tokio
-- **License**: MIT OR Apache-2.0
-- **Repository**: `github.com/nearai/ironclaw`
-- **Primary use case**: Single-user personal AI assistant with defense-in-depth security
+- **Primary Use Case:** Single-user personal AI assistant with defense-in-depth security
+- **Repository:** [github.com/nearai/ironclaw](https://github.com/nearai/ironclaw)
+- **Language/Runtime:** Rust 1.92+ (2024 edition), async via Tokio
+- **License:** MIT OR Apache-2.0
 
 ---
 

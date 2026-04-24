@@ -1,14 +1,13 @@
-# PicoClaw - Technical Analysis
+# PicoClaw
 
 ## 1. Overview
 
 PicoClaw is an ultra-lightweight personal AI agent framework written in Go, designed to run on severely constrained hardware -- as cheap as $10 SBCs with <10MB RAM and 0.6GHz single-core CPUs. It is a spiritual successor to [nanobot](https://github.com/HKUDS/nanobot) (Python), refactored from the ground up in Go through what the creators claim was a 95% AI-bootstrapped process. PicoClaw achieves a single static binary that cross-compiles to RISC-V, ARM64, LoongArch, and x86_64 from a single `go build` invocation. Despite its minimal footprint, it implements the full agent loop pattern (LLM + tool calling + multi-channel messaging) and even includes hardware I2C/SPI tools for direct sensor interaction on Linux SBCs.
 
+- **Primary Use Case:** Running a personal AI assistant on ultra-cheap embedded Linux hardware (LicheeRV Nano, MaixCam, etc.)
+- **Repository:** [github.com/sipeed/picoclaw](https://github.com/sipeed/picoclaw)
 - **Language/Runtime:** Go 1.25+, single static binary
 - **License:** MIT
-- **GitHub:** 12K stars in one week (launched 2026-02-09), by Sipeed (Chinese hardware company)
-- **Primary Use Case:** Running a personal AI assistant on ultra-cheap embedded Linux hardware (LicheeRV Nano, MaixCam, etc.)
-- **Codebase:** 125 `.go` files, ~19,700 lines (non-test)
 
 ## 2. Architecture
 

@@ -1,13 +1,13 @@
-# OpenClaw - Deep Technical Analysis
+# OpenClaw
 
 ## 1. Overview
 
 OpenClaw is a self-hosted, multi-channel AI agent gateway written in TypeScript/Node.js. It acts as a persistent daemon that bridges LLM providers (Anthropic, OpenAI, Google, Ollama, etc.) with messaging platforms (Telegram, Discord, WhatsApp, Signal, Slack, iMessage, web) while providing the agent with a rich tool environment including file I/O, shell execution, browser automation, cron scheduling, memory search, and sub-agent orchestration. The agent maintains persistent identity through workspace markdown files (SOUL.md, MEMORY.md, AGENTS.md) and uses a session-based architecture where each conversation thread gets its own transcript file with automatic compaction when context windows fill.
 
-- **Language/Runtime**: TypeScript on Node.js v22+
-- **License**: MIT
-- **Primary Use Case**: Personal AI assistant that runs 24/7 on your machine, accessible from any messaging platform, with full filesystem and shell access
-- **Codebase Size**: ~2,100 non-test TypeScript source files, ~4,000 total including tests
+- **Primary Use Case:** Personal AI assistant that runs 24/7 on your machine, accessible from any messaging platform, with full filesystem and shell access
+- **Repository:** [github.com/openclaw/openclaw](https://github.com/openclaw/openclaw)
+- **Language/Runtime:** TypeScript on Node.js v22+
+- **License:** MIT
 
 ## 2. Architecture
 

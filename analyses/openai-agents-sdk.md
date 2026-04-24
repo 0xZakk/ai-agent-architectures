@@ -1,17 +1,13 @@
-# OpenAI Agents SDK - Technical Analysis
+# OpenAI Agents SDK
 
 ## 1. Overview
 
 The OpenAI Agents SDK is a lightweight, production-grade framework for building multi-agent workflows, available in both Python and JavaScript/TypeScript. Unlike the other frameworks in this comparison -- which are standalone agent applications -- the Agents SDK is a *library* for building agents into your own applications. It was open-sourced by OpenAI in March 2025 (Python) and May 2025 (JavaScript), and has rapidly become one of the most popular agent frameworks by star count.
 
-- **Languages/Runtimes:** Python 3.10+ and TypeScript (Node.js 22+, Deno, Bun)
-- **License:** MIT
-- **GitHub:** ~24,600 stars (Python), ~2,800 stars (JS/TS)
 - **Primary Use Case:** Building multi-agent LLM workflows with tool use, guardrails, handoffs, human-in-the-loop approval, memory, and tracing
-- **Python Codebase:** ~230+ source files in `src/agents/`, plus extensions for voice, realtime, sandbox, MCP, and 10+ session backends
-- **JS/TS Codebase:** Monorepo with `agents-core`, `agents-openai`, `agents-realtime`, `agents-extensions` packages (~100+ source files)
-- **Key Dependencies (Python):** `openai`, `pydantic`, `mcp`, `typing-extensions`
-- **Key Dependencies (JS):** `openai`, `zod` (peer), `@modelcontextprotocol/sdk`
+- **Repository:** [github.com/openai/openai-agents-python](https://github.com/openai/openai-agents-python)
+- **Language/Runtime:** Python 3.10+ and TypeScript (Node.js 22+, Deno, Bun)
+- **License:** MIT
 
 ### Design Philosophy
 

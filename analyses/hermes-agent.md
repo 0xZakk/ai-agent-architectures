@@ -1,14 +1,13 @@
-# Hermes Agent -- Personal AI Agent Framework Analysis
+# Hermes Agent
 
 ## 1. Overview
 
 **Hermes Agent** is a fully open-source personal AI agent framework built by Nous Research. Unlike coding-focused agent harnesses, Hermes is designed to be a persistent personal agent that lives on your server, connects to your messaging accounts (Telegram, Discord, Slack, WhatsApp, CLI), learns over time via persistent memory and skills, runs scheduled tasks via a built-in cron system, and delegates work to parallel subagents. It uses the OpenAI-compatible chat completions API (routed primarily through OpenRouter) to support 200+ models with zero code changes, and includes research-oriented features like batch trajectory generation and Atropos RL training environments. The architecture is a monolithic Python application with a clean separation between the agent core (`run_agent.py`), the messaging gateway (`gateway/`), the tool system (`tools/`), and CLI entry points (`hermes_cli/`).
 
-- **Language/Runtime**: Python 3.11+
-- **License**: MIT
-- **Author**: Nous Research
-- **Repository**: [github.com/NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)
-- **Primary Use Case**: Persistent personal AI agent with multi-channel messaging, scheduled automation, and self-improving skills
+- **Primary Use Case:** Persistent personal AI agent with multi-channel messaging, scheduled automation, and self-improving skills
+- **Repository:** [github.com/NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)
+- **Language/Runtime:** Python 3.11+
+- **License:** MIT
 
 ## 2. Architecture
 

@@ -1,14 +1,13 @@
-# pi (pi.dev) -- Coding Agent Framework Analysis
+# pi (pi.dev)
 
 ## 1. Overview
 
 **pi** is an opinionated, minimalist coding agent framework built by Mario Zechner (badlogic) as a personal alternative to Claude Code, Codex, and similar harnesses. It is a TypeScript monorepo containing a unified multi-provider LLM API (`pi-ai`), an agent loop with state management (`pi-agent-core`), a custom retained-mode terminal UI framework (`pi-tui`), a web UI component library (`pi-web-ui`), and the actual coding agent CLI (`pi-coding-agent`). The philosophy is radical minimalism: a ~150-word system prompt, four tools (read, write, edit, bash), no built-in sub-agents, no plan mode, no MCP support, and no background bash -- all by explicit design choice. Despite this, it achieves competitive benchmark scores and provides an extremely extensible plugin system that can add all of those features back via extensions.
 
-- **Language/Runtime**: TypeScript, Node.js (also builds with Bun)
-- **License**: MIT
-- **Author**: Mario Zechner (@badlogic)
-- **Repository**: [github.com/badlogic/pi-mono](https://github.com/badlogic/pi-mono)
-- **Primary Use Case**: Interactive coding agent CLI with multi-provider LLM support
+- **Primary Use Case:** Interactive coding agent CLI with multi-provider LLM support
+- **Repository:** [github.com/badlogic/pi-mono](https://github.com/badlogic/pi-mono)
+- **Language/Runtime:** TypeScript, Node.js (also builds with Bun)
+- **License:** MIT
 
 ## 2. Architecture
 

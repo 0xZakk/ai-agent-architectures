@@ -1,12 +1,13 @@
-# HermitClaw -- Analysis
+# HermitClaw
 
 ## 1. Overview
 
 HermitClaw is a continuously-running autonomous AI agent that lives in a sandboxed folder on your computer, described by its creator as "a tamagotchi that does research." Unlike conventional chatbots that respond to prompts, HermitClaw runs a perpetual thinking loop -- choosing topics, searching the web, writing reports, coding scripts, and building up a body of work over days and weeks. It features a personality genome derived from keyboard entropy, a Generative Agents-inspired memory system with three-factor retrieval (recency + importance + relevance), a reflection/dreaming cycle that consolidates raw thoughts into higher-order beliefs, periodic planning, mood-driven behavior, and a pixel-art room UI where a hermit crab character visually wanders between desk, bookshelf, window, and bed.
 
-- **Language/Runtime**: Python 3.12+ backend (FastAPI/uvicorn), React 18 + TypeScript frontend (Vite, HTML5 Canvas)
-- **License**: MIT
-- **Primary use case**: Autonomous research agent / digital pet that continuously produces artifacts (reports, code, notes) without human prompting
+- **Primary Use Case:** Autonomous research agent / digital pet that continuously produces artifacts (reports, code, notes) without human prompting
+- **Repository:** [github.com/hermitclaw/hermitclaw](https://github.com/hermitclaw/hermitclaw)
+- **Language/Runtime:** Python 3.12+ backend (FastAPI/uvicorn), React 18 + TypeScript frontend (Vite, HTML5 Canvas)
+- **License:** MIT
 
 ## 2. Architecture
 

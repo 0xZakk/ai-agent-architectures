@@ -1,12 +1,13 @@
-# Spacebot - Framework Analysis
+# Spacebot
 
 ## 1. Overview
 
 Spacebot is a multi-agent AI framework built in Rust, designed for teams, communities, and multi-user environments. Its core innovation is a strict delegation model where the user-facing orchestrator (Channel) **never executes work itself** -- it only manages conversation flow, delegating all thinking to Branches and all execution to Workers. These run as concurrent tokio tasks, meaning multiple users across multiple channels can interact simultaneously without any of them blocking each other. The system maintains long-term memory in a graph database with 8 typed memory kinds, generates pre-computed "bulletins" (briefings) via a Cortex process, and handles context overflow through a tiered compaction system. Built by the Spacedrive team, it ships as a single Rust binary with native Discord, Slack, and Telegram adapters.
 
-- **Language/Runtime**: Rust (core, ~88 .rs files), TypeScript (web UI, ~16 .ts files)
-- **License**: FSL-1.1-ALv2 (Functional Source License, converts to Apache 2.0)
-- **Primary use case**: Multi-user AI agent for team Discord/Slack servers, communities with concurrent conversations
+- **Primary Use Case:** Multi-user AI agent for team Discord/Slack servers, communities with concurrent conversations
+- **Repository:** [github.com/spacedriveapp/spacebot](https://github.com/spacedriveapp/spacebot)
+- **Language/Runtime:** Rust (core, ~88 .rs files), TypeScript (web UI, ~16 .ts files)
+- **License:** FSL-1.1-ALv2 (Functional Source License, converts to Apache 2.0)
 
 ## 2. Architecture
 
