@@ -6,7 +6,7 @@ import TableOfContents from '@/components/TableOfContents';
 export default function ComparisonClient({ content, headings }: { content: string; headings: { id: string; text: string; level: number }[] }) {
   return (
     <div className="flex gap-8">
-      <div className="flex-1 min-w-0 max-w-5xl mx-auto px-6 py-8">
+      <div className="flex-1 min-w-0 max-w-4xl mx-auto px-6 py-8">
         <h1 className="text-3xl font-bold font-serif text-[var(--color-text-bright)] mb-2">Cross-Framework Comparison</h1>
         <p className="text-[var(--color-text-muted)] mb-6">Side-by-side analysis of all 8 frameworks across every dimension.</p>
         <div className="tldr">
