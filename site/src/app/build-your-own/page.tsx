@@ -33,45 +33,45 @@ Every framework stores state as files or SQLite. None use external databases as 
 
 Build these in order:
 
-### 1. LLM Client (Day 1)
+### 1. LLM Client
 - [ ] Call an LLM API with messages and tools
 - [ ] Parse tool call responses
 - [ ] Handle streaming (or buffer for simplicity)
 - [ ] Support at least 2 providers (for fallback)
 
-### 2. Agent Loop (Day 1)
+### 2. Agent Loop
 - [ ] Send messages + tool definitions to LLM
 - [ ] Execute tool calls and append results
 - [ ] Loop until LLM returns text (no tool calls)
 - [ ] Set a max iteration limit (10-20)
 
-### 3. Basic Tools (Day 2)
+### 3. Basic Tools
 - [ ] Shell command execution
 - [ ] File read/write
 - [ ] Web search (Brave API or similar)
 - Start with 3-4 tools. You can always add more.
 
-### 4. Session Persistence (Day 2)
+### 4. Session Persistence
 - [ ] Save conversation history to disk (JSON/JSONL)
 - [ ] Load history on session resume
 - [ ] Session key routing (channel + chat ID)
 
-### 5. System Prompt (Day 3)
+### 5. System Prompt
 - [ ] Load identity files (AGENTS.md, SOUL.md)
 - [ ] Inject tool descriptions
 - [ ] Add runtime context (date, model, capabilities)
 
-### 6. Context Window Management (Day 3)
+### 6. Context Window Management
 - [ ] Estimate token count (chars/4 is fine to start)
 - [ ] Implement basic compaction (LLM summarization of old messages)
 - [ ] Emergency fallback: drop oldest messages
 
-### 7. Channel Adapter (Day 4+)
+### 7. Channel Adapter
 - [ ] Define a channel interface (receive messages, send responses)
 - [ ] Implement one channel (Telegram or Discord are easiest)
 - [ ] Route messages to correct session
 
-### 8. Memory (Week 2+)
+### 8. Memory
 - [ ] Workspace files (MEMORY.md pattern)
 - [ ] Optional: embeddings + vector search for semantic retrieval
 - [ ] Optional: daily note logging

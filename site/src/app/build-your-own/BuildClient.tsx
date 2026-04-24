@@ -11,7 +11,7 @@ export default function BuildClient({ content, headings }: { content: string; he
         <p className="text-[var(--color-text-muted)] mb-6">Actionable guidance synthesized from all 8 frameworks.</p>
         <div className="tldr">
           <p className="text-sm text-[var(--color-text)]">
-            Start with TypeScript or Python. Build the agent loop first (Day 1), add 3-4 tools (Day 2), add session persistence and system prompt (Day 3), then a channel adapter (Day 4+). Memory search is Week 2+. Start with files for state, add a database only when needed. Study HermitClaw first (smallest), then PicoClaw, pi, Spacebot, IronClaw, OpenClaw.
+            Start with TypeScript or Python. Build the agent loop first, then add 3-4 tools, then session persistence and system prompt, then a channel adapter. Memory search comes last. Start with files for state, add a database only when needed. Study HermitClaw first (smallest), then PicoClaw, pi, Spacebot, IronClaw, OpenClaw.
           </p>
         </div>
         <MarkdownRenderer content={content} />
