@@ -9,16 +9,15 @@ export default function Home() {
           AI Agent Architectures
         </h1>
         <p className="text-lg text-[var(--color-text-muted)] mb-6 leading-relaxed">
-          A deep technical comparison of 8 AI agent frameworks, written for software engineers
-          who want to understand how AI agents are built -- and how to build their own.
+          I dug into the source code of 8 open-source AI agent frameworks to understand how they actually work.
+          This is what I found -- and what you can steal for your own agents.
         </p>
         <div className="tldr">
           <p className="text-sm text-[var(--color-text)]">
-            This site analyzes the source code of 8 open-source AI agent frameworks across architecture,
-            memory, tools, security, LLM integration, and more. Each framework analysis is 30+ pages of
-            annotated code and architecture diagrams. The <Link href="/comparison" className="text-[var(--color-accent)]">Comparison</Link> page
-            synthesizes findings across all eight. The <Link href="/build-your-own" className="text-[var(--color-accent)]">Build Your Own</Link> guide
-            distills patterns into actionable advice.
+            Each framework gets 30+ pages of annotated source code and architecture diagrams -- covering
+            event loops, memory, tools, security, and LLM integration. The <Link href="/comparison" className="text-[var(--color-accent)]">Comparison</Link> page
+            puts all eight side by side. The <Link href="/build-your-own" className="text-[var(--color-accent)]">Build Your Own</Link> guide
+            turns the patterns into concrete advice for building your own.
           </p>
         </div>
       </div>
@@ -26,9 +25,9 @@ export default function Home() {
       <div className="mb-8">
         <h2 className="text-xl font-semibold text-[var(--color-text-bright)] mb-1">Who is this for?</h2>
         <p className="text-[var(--color-text-muted)] text-sm mb-4">
-          Software engineers who want to go beyond &ldquo;call the API&rdquo; and understand the systems
-          engineering behind AI agents: event loops, memory architectures, tool sandboxing, context window
-          management, multi-channel abstractions, and security models.
+          Software engineers who want to go beyond &ldquo;call the API&rdquo; and understand what&apos;s actually
+          happening inside these systems -- event loops, memory architectures, tool sandboxing, context
+          management, and security models.
         </p>
       </div>
 
@@ -36,8 +35,8 @@ export default function Home() {
         <h2 className="text-xl font-semibold text-[var(--color-text-bright)] mb-1">How to use this site</h2>
         <ul className="text-sm text-[var(--color-text-muted)] space-y-1 list-disc pl-5">
           <li>Start with the <Link href="/comparison" className="text-[var(--color-accent)]">Comparison</Link> for a bird&apos;s-eye view</li>
-          <li>Dive into individual <strong className="text-[var(--color-text)]">framework pages</strong> for annotated source analysis</li>
-          <li>Read <Link href="/patterns" className="text-[var(--color-accent)]">Architecture Patterns</Link> for cross-cutting design themes</li>
+          <li>Pick a <strong className="text-[var(--color-text)]">framework page</strong> to read annotated source code</li>
+          <li>Check <Link href="/patterns" className="text-[var(--color-accent)]">Architecture Patterns</Link> for design themes that show up across frameworks</li>
           <li>Use <Link href="/build-your-own" className="text-[var(--color-accent)]">Build Your Own</Link> when you&apos;re ready to start coding</li>
         </ul>
       </div>
@@ -70,17 +69,17 @@ export default function Home() {
         <Link href="/comparison" className="p-4 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] hover:border-[var(--color-accent-dim)] transition-colors text-center">
           <span className="text-2xl block mb-1">⚖️</span>
           <span className="text-sm font-medium text-[var(--color-text-bright)]">Comparison</span>
-          <p className="text-xs text-[var(--color-text-muted)] mt-1">Cross-framework analysis</p>
+          <p className="text-xs text-[var(--color-text-muted)] mt-1">All 8 side by side</p>
         </Link>
         <Link href="/patterns" className="p-4 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] hover:border-[var(--color-accent-dim)] transition-colors text-center">
           <span className="text-2xl block mb-1">🧩</span>
           <span className="text-sm font-medium text-[var(--color-text-bright)]">Patterns</span>
-          <p className="text-xs text-[var(--color-text-muted)] mt-1">Recurring design patterns</p>
+          <p className="text-xs text-[var(--color-text-muted)] mt-1">What they all have in common</p>
         </Link>
         <Link href="/build-your-own" className="p-4 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] hover:border-[var(--color-accent-dim)] transition-colors text-center">
           <span className="text-2xl block mb-1">🔧</span>
           <span className="text-sm font-medium text-[var(--color-text-bright)]">Build Your Own</span>
-          <p className="text-xs text-[var(--color-text-muted)] mt-1">Actionable guide</p>
+          <p className="text-xs text-[var(--color-text-muted)] mt-1">From patterns to code</p>
         </Link>
       </div>
     </div>

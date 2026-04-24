@@ -8,10 +8,10 @@ export default function PatternsClient({ content, headings }: { content: string;
     <div className="flex gap-8">
       <div className="flex-1 min-w-0 max-w-4xl mx-auto px-6 py-8">
         <h1 className="text-3xl font-bold font-serif text-[var(--color-text-bright)] mb-2">Architecture Patterns</h1>
-        <p className="text-[var(--color-text-muted)] mb-6">Cross-cutting patterns observed across all 8 frameworks.</p>
+        <p className="text-[var(--color-text-muted)] mb-6">Cross-cutting patterns that showed up across all 8 frameworks.</p>
         <div className="tldr">
           <p className="text-sm text-[var(--color-text)]">
-            Five patterns recur across frameworks: the agent loop (with 5 variations), memory retrieval (4 approaches from RRF to no-search), tool sandboxing (5 levels from WASM to none), channel abstraction (converging interface), and context window management (4 strategies). The workspace convention (AGENTS.md/SOUL.md/MEMORY.md) emerged independently in 6 of 8 frameworks.
+            Five patterns show up everywhere: the agent loop (5 variations), memory retrieval (4 approaches, from RRF to just-read-a-file), tool sandboxing (5 levels, WASM to nothing), channel abstractions that all converge on the same interface, and context window management (4 strategies). The workspace convention -- AGENTS.md, SOUL.md, MEMORY.md -- emerged independently in 6 of 8 frameworks.
           </p>
         </div>
         <MarkdownRenderer content={content} />

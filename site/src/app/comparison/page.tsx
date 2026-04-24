@@ -6,7 +6,7 @@ const content = `
 
 ### Core Loop Patterns
 
-Each framework takes a fundamentally different approach to its main execution loop:
+Every framework has a main loop, and they're all different:
 
 | Framework | Loop Pattern | Language | Concurrency Model |
 |-----------|-------------|----------|-------------------|
@@ -19,13 +19,13 @@ Each framework takes a fundamentally different approach to its main execution lo
 | **Hermes Agent** | Synchronous agentic loop with thread interrupts | Python | Synchronous core, subagent parallelism (up to 3) |
 | **OpenAI Agents SDK** | Runner turn loop with guardrails and handoffs | Python / TypeScript | async/await, asyncio.gather for parallel guardrails |
 
-**Request-response** (OpenClaw, IronClaw, PicoClaw, pi, Hermes): The agent waits for input, processes it through an LLM + tool loop, returns a response. This is the dominant pattern.
+**Request-response** (OpenClaw, IronClaw, PicoClaw, pi, Hermes): Wait for input, run it through an LLM + tool loop, return a response. Most frameworks do this.
 
-**Continuous** (HermitClaw): The agent thinks on its own, continuously, with no human trigger. Every 5 seconds it runs a think cycle, picks topics, researches, writes. Human messages are "overheard" as nudges.
+**Continuous** (HermitClaw): No human trigger needed. Every 5 seconds it runs a think cycle -- picks topics, researches, writes. Human messages are just nudges it overhears.
 
-**Delegation** (Spacebot): The user-facing Channel never executes work -- it dispatches to Branches (thinking) and Workers (execution) that run as concurrent tasks. Results flow back as events.
+**Delegation** (Spacebot): The user-facing Channel never executes work itself. It dispatches to Branches (thinking) and Workers (execution) running as concurrent tasks. Results flow back as events.
 
-**Orchestration** (OpenAI Agents SDK): The Runner manages a turn loop where agents can hand off to other agents, tools can require human approval (pausing the entire run), and guardrails validate inputs/outputs. The run state is fully serializable for durable workflows.
+**Orchestration** (OpenAI Agents SDK): The Runner manages a turn loop where agents hand off to other agents, tools can pause for human approval, and guardrails validate inputs/outputs. Run state is fully serializable -- you can persist it and resume later.
 
 ### Module Structure Comparison
 
@@ -42,7 +42,7 @@ Each framework takes a fundamentally different approach to its main execution lo
 
 ### Framework Type Spectrum
 
-A key distinction: most frameworks here are **standalone agent applications** -- you run them and interact with them. The OpenAI Agents SDK is a **library** -- you import it into your own application and build agents programmatically. Hermes Agent sits in between: it's an application, but its tool registry and platform adapter patterns make it highly extensible.
+Most frameworks here are **standalone applications** -- you run them, you interact with them. The OpenAI Agents SDK is a **library** -- you import it and build agents in your own code. Hermes Agent lands somewhere in between: it's an application, but the tool registry and platform adapter patterns make it easy to extend.
 
 ## Memory Systems
 
@@ -61,19 +61,19 @@ A key distinction: most frameworks here are **standalone agent applications** --
 
 ### Memory Retrieval Approaches
 
-**Hybrid Search (RRF)** -- Used by OpenClaw, IronClaw, and Spacebot. Combines full-text search (BM25/FTS) with vector similarity, merging results via Reciprocal Rank Fusion. Items appearing in both result sets get boosted scores.
+**Hybrid Search (RRF)** -- OpenClaw, IronClaw, and Spacebot all do this. They combine full-text search (BM25/FTS) with vector similarity, then merge results via Reciprocal Rank Fusion. If something shows up in both result sets, it gets a boosted score.
 
-**Three-Factor Retrieval** -- HermitClaw's approach from the Generative Agents paper: \`score = recency + importance + relevance\`. Each factor ranges 0-1, recency decays exponentially, importance is LLM-scored 1-10, relevance is cosine similarity.
+**Three-Factor Retrieval** -- HermitClaw's approach, straight from the Generative Agents paper: \`score = recency + importance + relevance\`. Each factor is 0-1. Recency decays exponentially, importance is LLM-scored 1-10, relevance is cosine similarity.
 
-**External Memory Services** -- Hermes Agent uses Honcho for AI-native cross-session user modeling, plus SQLite-indexed session search for conversation history.
+**External Memory Services** -- Hermes Agent uses Honcho for cross-session user modeling, plus SQLite-indexed session search for conversation history.
 
-**Pluggable Session Backends** -- The OpenAI Agents SDK defines a Session protocol/interface with 10+ backends (in-memory, SQLite, Redis, SQLAlchemy, MongoDB, Dapr, encrypted, OpenAI Conversations). Long-term memory is left to the application.
+**Pluggable Session Backends** -- The OpenAI Agents SDK defines a Session protocol with 10+ backends (in-memory, SQLite, Redis, SQLAlchemy, MongoDB, Dapr, encrypted, OpenAI Conversations). Long-term memory is your problem.
 
-**No Retrieval** -- PicoClaw and pi have no semantic search. PicoClaw injects MEMORY.md + last 3 days into the system prompt. pi relies on AGENTS.md context files and the LLM reading files via tools.
+**No Retrieval** -- PicoClaw and pi skip semantic search entirely. PicoClaw just injects MEMORY.md + the last 3 days into the system prompt. pi relies on AGENTS.md context files and the LLM reading files via tools.
 
 ### The Workspace File Pattern
 
-Five of eight frameworks use a shared pattern for persistent identity and memory:
+Five of the eight frameworks converge on the same pattern for persistent identity and memory:
 
 | File | Purpose | Used By |
 |------|---------|---------|
@@ -83,9 +83,9 @@ Five of eight frameworks use a shared pattern for persistent identity and memory
 | \`MEMORY.md\` | Curated long-term memory | OpenClaw, IronClaw, PicoClaw, Hermes |
 | \`memory/YYYY-MM-DD.md\` | Daily logs | OpenClaw, IronClaw, PicoClaw |
 
-HermitClaw is the outlier -- it uses \`identity.json\` (genome-derived traits) and \`memory_stream.jsonl\` (append-only with embeddings) instead.
+HermitClaw does its own thing -- \`identity.json\` (genome-derived traits) and \`memory_stream.jsonl\` (append-only with embeddings).
 
-The OpenAI Agents SDK has no workspace file convention -- agent instructions are defined in code, and memory is delegated to the Session interface.
+The OpenAI Agents SDK has no workspace file convention. Agent instructions live in code, and memory is delegated to the Session interface.
 
 ## Tool / Function Calling
 
@@ -125,7 +125,7 @@ The OpenAI Agents SDK has no workspace file convention -- agent instructions are
 
 ### Tool Definition Patterns
 
-All eight frameworks define tools as name + JSON schema + execute function, matching the LLM tool-calling convention. But the registration patterns differ:
+Every framework defines tools as name + JSON schema + execute function -- that's just what LLMs expect. The registration patterns differ though:
 
 - **Registry pattern** (OpenClaw, IronClaw, PicoClaw, Spacebot, Hermes): Tools register in a central registry, filtered by policy before reaching the LLM
 - **Direct assembly** (HermitClaw): Tools defined inline as OpenAI function schemas
@@ -146,7 +146,7 @@ All eight frameworks define tools as name + JSON schema + execute function, matc
 | Tool policy layers | 5-layer pipeline | Capability-based + approval | AllowFrom per channel | Command blocklist | Process type isolation | None (extension-based) | Dangerous command approval (25+ patterns) | Guardrails (input/output/tool) + approval |
 | Exec security modes | deny/allowlist/full | Approval per tool call | Regex deny patterns | Blocklist + env restriction | Workspace restriction | Full access | Confirmation (CLI) / approval (messaging) | needsApproval per tool |
 
-IronClaw's security is the standout -- five layers deep (WASM sandbox, credential injection, prompt injection defense, leak detection, endpoint allowlisting). Hermes Agent adds strong prompt injection scanning and multi-backend isolation. The OpenAI Agents SDK takes a different approach with guardrails (tripwire-based safety checks at input, output, and tool levels) plus human-in-the-loop tool approval with serializable state.
+IronClaw goes the deepest on security -- five layers (WASM sandbox, credential injection, prompt injection defense, leak detection, endpoint allowlisting). Hermes Agent adds prompt injection scanning and multi-backend isolation. The OpenAI Agents SDK takes a different angle: guardrails (tripwire-based safety checks at input, output, and tool levels) plus human-in-the-loop tool approval with serializable state.
 
 ## LLM Integration
 
@@ -175,7 +175,7 @@ IronClaw's security is the standout -- five layers deep (WASM sandbox, credentia
 | Auth rotation | ✅ (multi-key) | ❌ | ❌ | ❌ | ❌ | ❌ | OAuth token management | ❌ |
 | Context handoff | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ (cross-provider) | ❌ | ✅ (handoffs between agents) |
 
-pi's cross-provider context handoff is unique -- you can start with Claude, switch to GPT mid-session, and continue with Gemini, with automatic message format conversion. The OpenAI Agents SDK's context handoff is between agents (via handoffs), not between providers.
+pi does something no other framework does here: you can start a session with Claude, switch to GPT mid-conversation, and continue with Gemini. It handles the message format conversion automatically. The Agents SDK's handoffs are between agents, not providers -- a different concept entirely.
 
 ## Multi-Channel Support
 
@@ -197,13 +197,13 @@ pi's cross-provider context handoff is unique -- you can start with Claude, swit
 | Realtime/Voice | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ (WebRTC, WebSocket, SIP) |
 | **Total** | **7** | **4-5** | **10** | **1** | **4** | **3-4** | **6** | **1-2** |
 
-PicoClaw leads with 10 channels, largely because of Chinese platform support (QQ, DingTalk, Feishu, OneBot). OpenClaw has the broadest Western platform coverage with 7 channels. Hermes Agent covers the core Western platforms plus Home Assistant for IoT.
+PicoClaw leads with 10 channels -- mostly because of Chinese platform support (QQ, DingTalk, Feishu, OneBot). OpenClaw has the broadest Western platform coverage at 7. Hermes covers the core Western platforms plus Home Assistant for IoT.
 
-The OpenAI Agents SDK takes a fundamentally different approach -- it's a library, not an application, so it doesn't include platform adapters. Instead, it provides a Realtime API integration for voice agents (WebRTC, WebSocket, SIP) that you wire into your own application.
+The OpenAI Agents SDK is a library, not an application, so it doesn't ship platform adapters. What it does have is a Realtime API integration for voice agents (WebRTC, WebSocket, SIP) that you wire into your own app.
 
 ### Channel Abstraction Patterns
 
-All multi-channel frameworks abstract messaging via a common interface:
+Every multi-channel framework abstracts messaging behind a common interface:
 
 - **OpenClaw**: \`ChannelPlugin\` with optional adapters (setup, status, auth, messaging, streaming, etc.)
 - **IronClaw**: \`Channel\` trait (\`start() -> MessageStream\`, \`respond()\`, \`health_check()\`)
@@ -237,7 +237,7 @@ All multi-channel frameworks abstract messaging via a common interface:
 | **Hermes Agent** | ~200-500MB | 2-5s | ~100MB (Python + deps) | Python, pip, many optional services |
 | **OpenAI Agents SDK** | ~50-200MB | <1s | ~20MB (pip) / ~10MB (npm) | Python or Node.js; OpenAI API key |
 
-PicoClaw is the clear winner for footprint -- designed explicitly for $10 SBCs with <10MB RAM and sub-second boot. The OpenAI Agents SDK is lightweight as a library but requires an LLM API connection.
+PicoClaw wins on footprint by a wide margin -- it was designed for $10 single-board computers, and it shows. The Agents SDK is light as a library, but it still needs an LLM API connection to do anything.
 
 ## Best For: When to Use Which
 

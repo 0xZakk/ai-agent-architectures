@@ -13,11 +13,11 @@ const content = `
 | **Go** | Single binary, fast compilation, low memory, easy concurrency | Less expressive type system | PicoClaw |
 | **Python** | Fastest to prototype, best ML/AI library ecosystem | Slowest runtime, GIL, dependency management | HermitClaw |
 
-**Recommendation**: Start with TypeScript or Python for prototyping. Move to Go or Rust if you need deployment efficiency or are building for constrained environments.
+My take: start with TypeScript or Python for prototyping. Move to Go or Rust if you need deployment efficiency or you're targeting constrained environments.
 
 ### Loop Style
 
-Choose based on your use case:
+This depends on what you're building:
 
 - **Request-response** (most frameworks): User sends message, agent processes, returns response. Best for assistants, coding agents, chatbots.
 - **Continuous** (HermitClaw): Agent thinks on its own schedule. Best for research agents, monitoring, autonomous systems.
@@ -25,13 +25,13 @@ Choose based on your use case:
 
 ### State Management
 
-Every framework stores state as files or SQLite. None use external databases as a hard requirement (IronClaw supports PostgreSQL but also works with libSQL).
+Every framework here stores state as files or SQLite. None require an external database -- IronClaw supports PostgreSQL but also works with libSQL.
 
-**Start with files**. JSON for structured data, markdown for human-readable content. You can always add a database later, but files are debuggable, portable, and simple.
+Start with files. JSON for structured data, markdown for human-readable content. You can always add a database later, but files are debuggable, portable, and simple.
 
 ## Essential Components Checklist
 
-Build these in order:
+Build these roughly in this order:
 
 ### 1. LLM Client
 - [ ] Call an LLM API with messages and tools
@@ -49,7 +49,7 @@ Build these in order:
 - [ ] Shell command execution
 - [ ] File read/write
 - [ ] Web search (Brave API or similar)
-- Start with 3-4 tools. You can always add more.
+- 3-4 tools is plenty to start. Add more as you need them.
 
 ### 4. Session Persistence
 - [ ] Save conversation history to disk (JSON/JSONL)
@@ -99,7 +99,7 @@ Build these in order:
 
 ### Embedding Setup
 
-If you go the vector route:
+If you go the vector route, here's what I'd pick:
 - **Model**: \`all-MiniLM-L6-v2\` (384 dims, fast, local) or \`text-embedding-3-small\` (OpenAI, better quality)
 - **Storage**: SQLite + sqlite-vec (simplest), LanceDB (Spacebot), or PostgreSQL + pgvector (IronClaw)
 - **Chunk size**: 500-1000 tokens per chunk
@@ -109,7 +109,7 @@ If you go the vector route:
 
 ### Minimum Viable Tool Set
 
-Every framework converges on these essentials:
+Every framework ends up with these:
 
 1. **Shell execution** -- \`exec\`/\`bash\`/\`shell\`
 2. **File read** -- Read file contents
@@ -120,7 +120,7 @@ Add as needed: web search, web fetch, message sending, browser automation.
 
 ### Tool Definition Pattern
 
-All frameworks use the same pattern (matching LLM APIs):
+All of them use the same shape (it matches the LLM APIs):
 
 \`\`\`typescript
 interface Tool {
@@ -133,7 +133,7 @@ interface Tool {
 
 ### Operations Pattern (from pi)
 
-Make tool I/O pluggable:
+A clean way to make tool I/O pluggable:
 
 \`\`\`typescript
 interface FileOperations {
@@ -149,13 +149,13 @@ function createReadTool(ops: FileOperations): Tool {
 }
 \`\`\`
 
-This lets you redirect tools to SSH, Docker, or any other backend without changing tool logic.
+Now you can redirect tools to SSH, Docker, or any other backend without touching the tool logic itself.
 
 ## Security Considerations
 
 ### Threat Model
 
-Your agent has access to tools. The LLM decides which tools to call. The LLM can be manipulated by:
+Your agent has tools, and the LLM decides which ones to call. The LLM can be manipulated by:
 1. **Prompt injection** -- Malicious content in web pages, emails, or user input that instructs the LLM to take harmful actions
 2. **Data exfiltration** -- The LLM sends private data to external services via tool calls
 3. **Privilege escalation** -- The LLM runs commands that exceed intended permissions
@@ -184,19 +184,19 @@ Your agent has access to tools. The LLM decides which tools to call. The LLM can
 
 ## Recommended Reading Order
 
-If you're studying these frameworks to learn agent architecture:
+If you're reading these codebases to learn agent architecture, here's the order I'd suggest:
 
-1. **Start with HermitClaw** -- Smallest codebase (~3K lines, 14 files). You can read the entire thing in an afternoon. The Generative Agents memory system and continuous thinking loop are educational even if you build something different.
+1. **Start with HermitClaw** -- Smallest codebase (~3K lines, 14 files). You can read the whole thing in an afternoon. The Generative Agents memory system and continuous thinking loop are worth understanding even if you end up building something different.
 
-2. **Then PicoClaw** -- Clean Go code (~20K lines). Shows how to build a complete agent with tools, channels, and sessions in a resource-efficient way. Good model for "the minimum viable agent framework."
+2. **Then PicoClaw** -- Clean Go code (~20K lines). Shows how to build a complete agent with tools, channels, and sessions while staying resource-efficient. A good model for "the minimum viable agent framework."
 
-3. **Then pi** -- The extension system and pluggable operations pattern are masterfully designed. Study this if you want to build something extensible.
+3. **Then pi** -- The extension system and pluggable operations pattern are beautifully designed. Worth studying if you want to build something extensible.
 
-4. **Then Spacebot** -- The delegation model (Channel/Branch/Worker) is the most innovative architecture. Study this for multi-user or high-concurrency designs.
+4. **Then Spacebot** -- The delegation model (Channel/Branch/Worker) is the most creative architecture in this group. Go here for multi-user or high-concurrency designs.
 
-5. **Then IronClaw** -- Deep security architecture. Study this if security is a priority or you want to understand WASM sandboxing.
+5. **Then IronClaw** -- Deep security architecture. Go here if security is a priority or you want to understand WASM sandboxing.
 
-6. **Finally OpenClaw** -- The most complete framework. Study this last because it's the most complex, but also the most production-hardened.
+6. **Finally OpenClaw** -- The most complete framework. Save it for last -- it's the most complex, but also the most production-hardened.
 
 ## "If You Want X, Study Y"
 
